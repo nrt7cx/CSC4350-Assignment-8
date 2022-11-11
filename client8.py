@@ -1,11 +1,10 @@
 #Nathaniel Tirado
-#Client sends four different messages to the server and recieves the corresponding message back.
-#Python; socket, argparse, datetime, string, random
+#Client sends created protocol over UDP to a server.
+#Python; socket, argparse,random
 #run with command line
 from socket import *
 import argparse
 import random
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-i","--internet", help="Sets IP Address for client: ", type=str)
@@ -24,16 +23,17 @@ serverPort = args.port
 clientMsg = args.msg
 clientSocket = socket(AF_INET, SOCK_DGRAM)
 
+
 ProID = hex(1)
-msgLen = hex(10 + len(clientMsg))
+PromsgLen = hex(10 + len(clientMsg))
 ProPort = hex(serverPort)
 ProRand = hex(random.randint(0,65535))
 ProField = hex(3)
 ProSeq = hex(random.randint(0,255))
-header = ProID + msgLen + ProPort + ProRand + ProField + ProSeq
+header = ProID + PromsgLen + ProPort + ProRand + ProField + ProSeq
 ProChkSum = getCheckSum(header)
 
-message = ProID + msgLen + ProPort + ProRand + ProField + ProSeq + ProChkSum + clientMsg
+message = ProID + PromsgLen + ProPort + ProRand + ProField + ProSeq + ProChkSum + clientMsg
 clientSocket.sendto(message.encode(),(serverIP,serverPort))
 modifiedMessage, serverAddress = clientSocket.recvfrom(2048)
 print (modifiedMessage.decode())
