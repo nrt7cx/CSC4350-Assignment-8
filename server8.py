@@ -1,6 +1,6 @@
 #Nathaniel Tirado
-#Server recieves four different messages from the client and sends the corresponding message back.
-#Python; socket, argparse, datetime, logging
+#Server recieves packet and ensures the checksum is correct and edits the packet to send an ack = 0x4 or a nack = 0x5.
+#Python; socket, argparse
 #run with command line
 from socket import *
 import argparse
