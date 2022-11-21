@@ -14,7 +14,7 @@ def getCheckSum(sentence):
     chksum = 0
     for i in sentence:
         chksum ^= ord(i)
-    return str(hex(chksum))
+    return chksum
 
 
 serverSocket = socket(AF_INET,SOCK_DGRAM) 
@@ -24,19 +24,21 @@ print ("The server is ready to receieve")
 while True:
         message, clientAddress = serverSocket.recvfrom(2048)
         print(message)
-    
-        if(message.decode()[0:4] == "0x10"):
-            chksum = message.decode()[25:29]
-            header = message.decode()[0:25]
-            chksumver = getCheckSum(header)
+        print(message[9::])
+        if(message[0:1] == b'\x01'):
+            message
+            chksum = message[8:9]
+            header = message[0:8]
+            print(header)
+            chksumver = getCheckSum(str(header))
+            chksumver = chksumver.to_bytes(1,'big')
+        
             if chksum == chksumver:
-                modifiedMessage = message.decode()
-                modifiedMessage = modifiedMessage.replace("0x3","0x4")
-                serverSocket.sendto(modifiedMessage.encode(),clientAddress)
+                modifiedMessage = message[0:6] + b'\x04' + message[7::]
+                serverSocket.sendto(modifiedMessage,clientAddress)
             
       
         else: 
-            modifiedMessage = message.decode()
-            modifiedMessage = modifiedMessage.replace("0x3","0x5")
-            serverSocket.sendto(modifiedMessage.encode(),clientAddress)
+            modifiedMessage = message[0:6] + b'\x05' + message[7::]
+            serverSocket.sendto(modifiedMessage,clientAddress)
             

@@ -16,7 +16,7 @@ def getCheckSum(sentence):
     chksum = 0
     for i in sentence:
         chksum ^= ord(i)
-    return str(hex(chksum))
+    return chksum
 
 serverIP = args.internet
 serverPort = args.port
@@ -24,17 +24,32 @@ clientMsg = args.msg
 clientSocket = socket(AF_INET, SOCK_DGRAM)
 
 
-ProID = hex(1)
-PromsgLen = hex(10 + len(clientMsg))
-ProPort = hex(serverPort)
-ProRand = hex(random.randint(0,65535))
-ProField = hex(3)
-ProSeq = hex(random.randint(0,255))
+ProID = 1
+ProID = ProID.to_bytes(1,'big')
+
+PromsgLen = 10 + len(clientMsg)
+PromsgLen = PromsgLen.to_bytes(1,'big')
+
+ProPort = serverPort
+ProPort = ProPort.to_bytes(2,'big')
+
+ProRand = random.randint(277,65535)
+ProRand = ProRand.to_bytes(2,'big')
+
+ProField = 3
+ProField = ProField.to_bytes(1,'big')
+
+ProSeq = random.randint(0,255)
+ProSeq = ProSeq.to_bytes(1,'big')
+
 header = ProID + PromsgLen + ProPort + ProRand + ProField + ProSeq
-ProChkSum = getCheckSum(header)
+ProChkSum = getCheckSum(str(header))
+ProChkSum = ProChkSum.to_bytes(1,'big')
+clientMsg = clientMsg.encode()
 
 message = ProID + PromsgLen + ProPort + ProRand + ProField + ProSeq + ProChkSum + clientMsg
-clientSocket.sendto(message.encode(),(serverIP,serverPort))
+print("Original Message:" + ' ' + str(message))
+clientSocket.sendto(message,(serverIP,serverPort))
 modifiedMessage, serverAddress = clientSocket.recvfrom(2048)
-print (modifiedMessage.decode())
+print ("New Message:" + ' ' + str(modifiedMessage))
 clientSocket.close
