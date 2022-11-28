@@ -33,7 +33,6 @@ while True:
             chksum = message[8:9]
             header = message[0:8]
             print(header)
-            print('swag'+ str(chksum))
             chksumver = getCheckSum(str(header))
             chksumver = chksumver.to_bytes(1,'big')
         
