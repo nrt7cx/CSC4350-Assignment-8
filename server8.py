@@ -16,7 +16,10 @@ def getCheckSum(sentence):
     for i in sentence:
         chksum ^= ord(i)
     return chksum
-
+def chksum_tobytes(var):
+    ProChkSum = getCheckSum(str(var))
+    ProChkSum = ProChkSum.to_bytes(1,'big')
+    return ProChkSum
 
 serverSocket = socket(AF_INET,SOCK_DGRAM) 
 serverSocket.bind(('',serverPort))
@@ -27,15 +30,15 @@ while True:
         print(pakdrop)
         message, clientAddress = serverSocket.recvfrom(2048)
         print(message)
+        print(message[8:9])
         print(message[9::])
         if(message[0:1] == b'\x01'):
             message
             chksum = message[8:9]
             header = message[0:8]
             print(header)
-            chksumver = getCheckSum(str(header))
-            chksumver = chksumver.to_bytes(1,'big')
-        
+            chksumver = chksum_tobytes(header)
+            
             if pakdrop == 2 :
                     modifiedMessage = message[0:6] + message[7::] 
                     print(modifiedMessage)
@@ -44,7 +47,6 @@ while True:
             elif chksum == chksumver:
                 modifiedMessage = message[0:6] + b'\x04' + message[7::]
                 serverSocket.sendto(modifiedMessage,clientAddress)
-            
             
             else: 
                 modifiedMessage = message[0:6] + b'\x05' + message[7::]
